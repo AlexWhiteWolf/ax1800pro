@@ -73,9 +73,9 @@ jobs:
         
     - name: 应用patch & 更新安装 feeds
       run: |
-        cp JDCloud-AX1800-Pro/0002-ipq60xx-add-support-for-JD-Cloud-AX1800-Pro.patch openwrt/JD-Cloud-AX1800-Pro.patch
+      #  cp JDCloud-AX1800-Pro/0002-ipq60xx-add-support-for-JD-Cloud-AX1800-Pro.patch openwrt/JD-Cloud-AX1800-Pro.patch
         cd openwrt
-        git apply JD-Cloud-AX1800-Pro.patch
+      #  git apply JD-Cloud-AX1800-Pro.patch
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         
