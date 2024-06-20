@@ -7,7 +7,7 @@
 # https://github.com/P3TERX/Actions-OpenWrt
 # Description: Build OpenWrt using GitHub Actions
 #
-###############手动修改##############
+
 name: XIAOMI-AX3600-LEDE
 
 on:
@@ -23,11 +23,8 @@ on:
         description: 'SSH connection to Actions'
         required: false
         default: 'false'
-#  schedule:
-#    - cron: 0 16 * * *
 
 env:
-  ###############手动修改##############
   OPENWRT_NAME: Lede
   REPO_URL: https://github.com/coolsnowwolf/lede
   REPO_BRANCH: master
@@ -46,13 +43,13 @@ jobs:
 
     permissions:
       contents: write
-    
+
     steps:
     - name: 检查项目分支
       uses: actions/checkout@main
       with:
-        fetch-depth: 0   
-      
+        fetch-depth: 0
+
     - name: 初始化编译环境
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -65,7 +62,7 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        
+
     - name: 下载固件源码
       working-directory: /workdir
       run: |
@@ -84,21 +81,21 @@ jobs:
         REPO_BRANCH: ${{ secrets.REPO_BRANCH }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
 
-     - name: Cache
-       uses: klever1988/cachewrtbuild@main
-       with:
+    - name: Cache
+      uses: klever1988/cachewrtbuild@main
+      with:
         mixkey: 'AX3600'
         prefix: ${{ github.workspace }}/openwrt
-         
-     - name: 加载feeds.conf.default & DIY_P1_SH
-       run: |
-         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-         chmod +x $DIY_P1_SH
-         cd openwrt
-         $GITHUB_WORKSPACE/$DIY_P1_SH
+
+    - name: 加载feeds.conf.default & DIY_P1_SH
+      run: |
+        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+        chmod +x $DIY_P1_SH
+        cd openwrt
+        $GITHUB_WORKSPACE/$DIY_P1_SH
         ./scripts/feeds update -a
-        ./scripts/feeds install -a  
-        
+        ./scripts/feeds install -a
+
     - name: 加载config & DIY_P2_SH
       run: |
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE openwrt/.config
@@ -106,21 +103,21 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$DIY_P2_SH
         ./scripts/feeds update -a
-        ./scripts/feeds install -a  
-        
+        ./scripts/feeds install -a
+
     - name: 取消编译dockerman
       if: github.event.inputs.NO_DOCKERMAN == 'true'
       run: |
         cd openwrt
         sed -i '/CONFIG_PACKAGE_luci-app-dockerman=y/d' .config
-        
+
     - name: SSH链接管理
       uses: P3TERX/ssh2actions@v1.0.0
-      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh  != 'false') || contains(github.event.action, 'ssh')
+      if: (github.event.inputs.ssh == 'true' && github.event.inputs.ssh != 'false') || contains(github.event.action, 'ssh')
       env:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        
+
     - name: 下载安装包
       id: package
       run: |
@@ -129,54 +126,54 @@ jobs:
         make download -j$(nproc)
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
-        
+
     - name: 编译固件
       id: compile
       run: |
         cd openwrt
         echo -e "$(nproc) thread compile"
         make -j$(nproc) || make -j1 || make -j1 V=s
-        grep '^CONFIG_TARGET.*DEVICE.*=y\nCONFIG_CCACHE=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+        grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
         [ -s DEVICE_NAME ] && echo "DEVICE_NAME=$(cat DEVICE_NAME)" >> $GITHUB_ENV
         grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*TARGET_.*_(.*)_DEVICE_.*=y/\1/' > TARGET_NAME
         [ -s TARGET_NAME ] && echo "TARGET_NAME=$(cat TARGET_NAME)" >> $GITHUB_ENV
         sed -nE 's/.*(192.168\.[0-9]+\.[0-9]+).*/\1/p' package/base-files/files/bin/config_generate | head -n 1 > IP_ADDR
         [ -s IP_ADDR ] && echo "IP_ADDR=$(cat IP_ADDR)" >> $GITHUB_ENV
         if [ -f "feeds/luci/modules/luci-base/root/sbin/soc-status" ]; then
-                echo "SHOW_TEMP=-show_temp" >> $GITHUB_ENV
+          echo "SHOW_TEMP=-show_temp" >> $GITHUB_ENV
         else
-                echo "SHOW_TEMP=" >> $GITHUB_ENV
+          echo "SHOW_TEMP=" >> $GITHUB_ENV
         fi
         if grep -q 'CONFIG_PACKAGE_luci-app-dockerman=y' .config; then
-                echo "BUILD_DOCKERMAN=-docker" >> $GITHUB_ENV
+          echo "BUILD_DOCKERMAN=-docker" >> $GITHUB_ENV
         else
-                echo "BUILD_DOCKERMAN=" >> $GITHUB_ENV
+          echo "BUILD_DOCKERMAN=" >> $GITHUB_ENV
         fi
         echo "FILE_DATE=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-        
+
     - name: 查看磁盘使用情况
       if: (!cancelled())
       run: df -hT
-      
+
     - name: 整理文件并重命名
       id: organize
       if: env.UPLOAD_FIRMWARE == 'true' && !cancelled()
-      run: | 
+      run: |
         cd openwrt/bin/targets/*/*
         rm -rf packages
         sudo -E apt-get -qq install rename
         rename 's/.*${{ env.DEVICE_NAME }}/${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}/' *
         echo "FIRMWARE=$PWD" >> $GITHUB_ENV
         echo "status=success" >> $GITHUB_OUTPUT
-        
+
     - name: 打包上传固件到Actions Artifacts
       uses: actions/upload-artifact@main
       if: steps.organize.outputs.status == 'success' && !cancelled()
       with:
         name: ${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}
         path: ${{ env.FIRMWARE }}
-        
+
     - name: 生成固件Release标签
       id: tag
       if: env.UPLOAD_RELEASE == 'true' && !cancelled()
@@ -184,15 +181,14 @@ jobs:
         touch release.txt
         echo "- 使用源码：${{ env.REPO_URL }}" >> release.txt
         echo "- 登录地址：${{ env.IP_ADDR }}" >> release.txt
-        # echo "- 注意AX3600规格的5G无线支持160MHz频宽" >> release.txt
         if [[ "${{ env.BUILD_DOCKERMAN }}" == '-docker' ]]; then
-                echo "- 已编译luci-app-dockerman" >> release.txt
+          echo "- 已编译luci-app-dockerman" >> release.txt
         else
-                echo "- 未编译luci-app-dockerman" >> release.txt
+          echo "- 未编译luci-app-dockerman" >> release.txt
         fi
         echo "release_tag=${{ env.FILE_DATE }}-${{ env.OPENWRT_NAME }}-${{ env.DEVICE_NAME }}${{ env.BUILD_DOCKERMAN }}" >> $GITHUB_OUTPUT
         echo "status=success" >> $GITHUB_OUTPUT
-        
+
     - name: 发布固件至Release
       uses: softprops/action-gh-release@master
       if: steps.tag.outputs.status == 'success' && !cancelled()
