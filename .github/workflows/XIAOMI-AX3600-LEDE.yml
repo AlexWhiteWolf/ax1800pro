@@ -51,7 +51,7 @@ jobs:
     - name: 检查项目分支
       uses: actions/checkout@main
       with:
-         fetch-depth: 0   
+        fetch-depth: 0   
       
     - name: 初始化编译环境
       env:
@@ -92,10 +92,10 @@ jobs:
          
      - name: 加载feeds.conf.default & DIY_P1_SH
        run: |
-        [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
-        chmod +x $DIY_P1_SH
-        cd openwrt
-        $GITHUB_WORKSPACE/$DIY_P1_SH
+         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
+         chmod +x $DIY_P1_SH
+         cd openwrt
+         $GITHUB_WORKSPACE/$DIY_P1_SH
         ./scripts/feeds update -a
         ./scripts/feeds install -a  
         
