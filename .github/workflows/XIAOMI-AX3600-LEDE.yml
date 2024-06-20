@@ -73,25 +73,25 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-   - name: Clone source code
-     working-directory: /workdir
-     run: |
-       df -hT $PWD
-       git clone $REPO_URL -b $REPO_BRANCH openwrt
-       ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
-     env:
-       REPO_URL: ${{ secrets.REPO_URL }}
-       REPO_BRANCH: ${{ secrets.REPO_BRANCH }}
-       GITHUB_WORKSPACE: ${{ github.workspace }}
-
-   - name: Cache
-     uses: klever1988/cachewrtbuild@main
-     with:
-       mixkey: 'AX3600'
-       prefix: ${{ github.workspace }}/openwrt
-         
-    - name: 加载feeds.conf.default & DIY_P1_SH
+    - name: Clone source code
+      working-directory: /workdir
       run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+      env:
+        REPO_URL: ${{ secrets.REPO_URL }}
+        REPO_BRANCH: ${{ secrets.REPO_BRANCH }}
+        GITHUB_WORKSPACE: ${{ github.workspace }}
+
+    - name: Cache
+      uses: klever1988/cachewrtbuild@main
+      with:
+        mixkey: 'AX3600'
+        prefix: ${{ github.workspace }}/openwrt
+         
+     - name: 加载feeds.conf.default & DIY_P1_SH
+       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
         chmod +x $DIY_P1_SH
         cd openwrt
