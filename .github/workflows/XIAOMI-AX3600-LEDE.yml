@@ -84,9 +84,9 @@ jobs:
         REPO_BRANCH: ${{ secrets.REPO_BRANCH }}
         GITHUB_WORKSPACE: ${{ github.workspace }}
 
-    - name: Cache
-      uses: klever1988/cachewrtbuild@main
-      with:
+     - name: Cache
+       uses: klever1988/cachewrtbuild@main
+       with:
         mixkey: 'AX3600'
         prefix: ${{ github.workspace }}/openwrt
          
