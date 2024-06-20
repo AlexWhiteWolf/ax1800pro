@@ -50,6 +50,8 @@ jobs:
     steps:
     - name: 检查项目分支
       uses: actions/checkout@main
+      with:
+        fetch-depth: 0   
       
     - name: 初始化编译环境
       env:
@@ -64,21 +66,6 @@ jobs:
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
         
-    - name: 清理磁盘空间(Ubuntu)
-      uses: jlumbroso/free-disk-space@main
-      with:
-        # this might remove tools that are actually needed,
-        # when set to "true" but frees about 6 GB
-        tool-cache: true
-        
-        # all of these default to true, but feel free to set to
-        # "false" if necessary for your workflow
-        android: false
-        dotnet: false
-        haskell: false
-        large-packages: false
-        swap-storage: false
-        
     - name: 下载固件源码
       working-directory: /workdir
       run: |
@@ -86,14 +73,23 @@ jobs:
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
 
-    - name: Cache
-      uses: HiGarfield/cachewrtbuild@main
-      with:
-        ccache: 'true'
-        clean: 'false'
-        mixkey: 'AX3600'
-        prefix: ${{ github.workspace }}/openwrt
-        
+   - name: Clone source code
+     working-directory: /workdir
+     run: |
+       df -hT $PWD
+       git clone $REPO_URL -b $REPO_BRANCH openwrt
+       ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+     env:
+       REPO_URL: ${{ secrets.REPO_URL }}
+       REPO_BRANCH: ${{ secrets.REPO_BRANCH }}
+       GITHUB_WORKSPACE: ${{ github.workspace }}
+
+   - name: Cache
+     uses: klever1988/cachewrtbuild@main
+     with:
+       mixkey: 'AX3600'
+       prefix: ${{ github.workspace }}/openwrt
+         
     - name: 加载feeds.conf.default & DIY_P1_SH
       run: |
         [ -e $FEEDS_CONF ] && mv $FEEDS_CONF openwrt/feeds.conf.default
