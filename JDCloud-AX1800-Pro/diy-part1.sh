@@ -16,3 +16,4 @@
 # Add a feed source
 git clone https://github.com/kenzok8/openwrt-packages package/kenzo
 git clone https://github.com/kenzok8/small package/small
+git clone https://github.com/sbwml/luci-app-alist package/alist
