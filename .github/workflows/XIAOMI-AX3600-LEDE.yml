@@ -89,7 +89,7 @@ jobs:
     - name: Cache
       uses: HiGarfield/cachewrtbuild@main
       with:
-        ccache: 'false'
+        ccache: 'true'
         clean: 'false'
         mixkey: 'AX3600'
         prefix: ${{ github.workspace }}/openwrt
