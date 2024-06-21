@@ -74,8 +74,8 @@ jobs:
           ${{ github.workspace }}/openwrt/dl
           ${{ github.workspace }}/openwrt/build_dir
           ${{ github.workspace }}/openwrt/staging_dir
-        key: ${{ runner.os }}-openwrt-${{ github.sha }}
-        restore-keys: |
+          key: ${{ runner.os }}-openwrt-${{ github.sha }}
+          restore-keys: |
           ${{ runner.os }}-openwrt-
         
     - name: 下载固件源码
@@ -93,7 +93,7 @@ jobs:
         ./scripts/feeds update -a
         ./scripts/feeds install -a
         
-   - name: Cache
+    - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
         mixkey: 'AX1800-PRO'
