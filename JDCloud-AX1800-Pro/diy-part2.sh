@@ -47,7 +47,7 @@ sed -i 's/+luci-theme-bootstrap/ /g' feeds/luci/collections/luci/Makefile
 #echo "Add CPU Temperature in Admin Index OK====================="
 
 #6.修改本地时间格式
-sed -i 's/os.date()/os.date("%a %Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
+sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
 
 #7.修改版本为编译日期
 date_version=$(date +"%y.%m.%d")
