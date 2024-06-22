@@ -19,28 +19,30 @@ on:
   workflow_dispatch:
   schedule:
     - cron: 00 10 * * 5
+
 jobs:
   check:
     runs-on: ubuntu-latest
 
     steps:
-
     - name: Get Commit Hash
       id: getHash
       run: |
        git clone --depth 1 $REPO_URL -b $REPO_BRANCH .
        echo "commitHash=$(git rev-parse HEAD)" >> $GITHUB_ENV
+
     - name: Compare Commit Hash
       id: cacheHash
       uses: actions/cache@v4
       with:
         path: .commitHash
-        key: HEAD-${{ steps.getHash.outputs.commitHash }}
+        key: HEAD-${{ env.commitHash }}
 
     - name: Save New Commit Hash
       if: steps.cacheHash.outputs.cache-hit != 'true'
       run: |
-        echo ${{ steps.getHash.outputs.commitHash }} | tee .commitHash
+        echo ${{ env.commitHash }} | tee .commitHash
+
     - name: Trigger build
       if: steps.cacheHash.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v3
@@ -53,6 +55,5 @@ jobs:
       with:
         retain_days: 30
         keep_minimum_runs: 3
-
       env:
-        ACTIONS_TRIGGER_PAT: ${{ secrets.ACTIONS_TRIGGER_PAT }} 
+        ACTIONS_TRIGGER_PAT: ${{ secrets.ACTIONS_TRIGGER_PAT }}
