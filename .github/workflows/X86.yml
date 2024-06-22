@@ -61,18 +61,7 @@ jobs:
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
-        
-    - name: 缓存OpenWrt编译文件
-      uses: actions/cache@v4
-      with:
-        path: |
-          ${{ github.workspace }}/openwrt/dl
-          ${{ github.workspace }}/openwrt/build_dir
-          ${{ github.workspace }}/openwrt/staging_dir
-        key: ${{ runner.os }}-openwrt-${{ github.sha }}
-        restore-keys: |
-          ${{ runner.os }}-openwrt-
-          
+            
     - name: 下载固件源码
       working-directory: /workdir
       run: |
@@ -83,7 +72,9 @@ jobs:
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
-        mixkey: 'X86'
+        ccache: 'true'
+        mixkey: X86
+        clean: ${{ contains(github.event.action, 'nocache') }}
         prefix: ${{ github.workspace }}/openwrt
 
     - name: 加载feeds.conf.default & DIY_P1_SH
