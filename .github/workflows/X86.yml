@@ -83,7 +83,7 @@ jobs:
     - name: Cache
       uses: klever1988/cachewrtbuild@main
       with:
-        mixkey: 'AX3600'
+        mixkey: 'X86'
         prefix: ${{ github.workspace }}/openwrt
 
     - name: 加载feeds.conf.default & DIY_P1_SH
