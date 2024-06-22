@@ -46,7 +46,7 @@ sed -i '/<div id="cpu_usage">/a <div id="compiled_by">\n编译作者 Microyin\n<
 echo "添加编译作者OK====================="
 
 #67.修改本地时间格式
-sed -i 's/os.date()/os.date("%a %Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
+sed -i 's/os.date()/os.date("%Y-%m-%d %H:%M:%S")/g' package/lean/autocore/files/*/index.htm
 
 #6.修改版本为编译日期
 date_version=$(date +"%y.%m.%d")
