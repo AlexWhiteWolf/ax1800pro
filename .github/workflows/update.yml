@@ -28,8 +28,8 @@ jobs:
     - name: Get Commit Hash
       id: getHash
       run: |
-       git clone --depth 1 $REPO_URL -b $REPO_BRANCH .
-       echo "commitHash=$(git rev-parse HEAD)" >> $GITHUB_ENV
+        git clone --depth 1 $REPO_URL -b $REPO_BRANCH .
+        echo "commitHash=$(git rev-parse HEAD)" >> $GITHUB_ENV
 
     - name: Compare Commit Hash
       id: cacheHash
@@ -47,7 +47,7 @@ jobs:
       if: steps.cacheHash.outputs.cache-hit != 'true'
       uses: peter-evans/repository-dispatch@v3
       with:
-        token: ${{ secrets.ACTIONS_TRIGGER_PAT }}
+        token: ${{ secrets.GITHUB_TOKEN }}
         event-type: Source Code Update
 
     - name: Delete workflow runs
