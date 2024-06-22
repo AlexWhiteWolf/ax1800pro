@@ -63,6 +63,3 @@ sed -i 's/"admin"/"admin", "services"/g' feeds/luci/applications/luci-app-docker
 sed -i 's/"admin"/"admin", "services"/g; s/admin\//admin\/services\//g' feeds/luci/applications/luci-app-dockerman/luasrc/model/cbi/dockerman/*.lua
 sed -i 's/admin\//admin\/services\//g' feeds/luci/applications/luci-app-dockerman/luasrc/view/dockerman/*.htm
 sed -i 's|admin\\|admin\\/services\\|g' feeds/luci/applications/luci-app-dockerman/luasrc/view/dockerman/container.htm
-
-# 添加alist
-git clone https://github.com/sbwml/luci-app-alist package/alist
