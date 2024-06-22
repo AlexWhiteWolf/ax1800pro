@@ -27,7 +27,6 @@ sed -i 's/192.168.1.1/192.168.5.1/g' package/base-files/files/bin/config_generat
 git clone https://github.com/Leo-Jo-My/luci-theme-opentomcat.git package/luci-theme-opentomcat
 #git clone https://github.com/openwrt-develop/luci-theme-atmaterial.git package/luci-theme-atmaterial
 #git clone https://github.com/sirpdboy/luci-theme-opentopd.git package/luci-theme-opentopd
-#git clone --depth=1 -b 18.06 https://github.com/jerrykuku/luci-theme-argon
 git clone https://github.com/kenzok78/luci-theme-argone package/luci-theme-argone
 #git clone --depth=1 https://github.com/jerrykuku/luci-app-argon-config
 #rm -rf ../lean/luci-theme-argon
